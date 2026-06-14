@@ -12,8 +12,8 @@ export default function Navbar() {
         <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
             <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
 
-                <Link href="/" className="text-xl font-bold text-foreground">
-                    Quran Modern
+                <Link href="/" className="text-xl font-extrabold bg-gradient-to-r from-emerald-500 to-green-500 bg-clip-text text-transparent">
+                    القرآن الكريم
                 </Link>
 
                 <nav className="hidden items-center gap-8 md:flex">

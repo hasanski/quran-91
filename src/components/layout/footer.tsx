@@ -11,8 +11,8 @@ export default function Footer() {
             <div className="mx-auto max-w-7xl px-6 py-12">
                 <div className="grid gap-10 md:grid-cols-3">
                     <div>
-                        <h3 className="mb-4 text-2xl font-bold text-foreground">
-                            Quran Modern
+                        <h3 className="mb-4 text-2xl font-extrabold bg-gradient-to-r from-emerald-500 to-green-500 bg-clip-text text-transparent">
+                            القرآن الكريم
                         </h3>
                         <p className="text-muted-foreground leading-8">
                             {t("footerDesc")}
@@ -50,8 +50,9 @@ export default function Footer() {
                     </div>
                 </div>
 
-                <div className="mt-10 border-t border-border pt-6 text-center text-sm text-muted-foreground">
-                    © 2026 Quran Modern
+                <div className="mt-10 border-t border-border pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground" dir="ltr">
+                    <div>Developed By MirzaTech</div>
+                    <div>Copyright © 2024. All rights reserved.</div>
                 </div>
             </div>
         </footer>
