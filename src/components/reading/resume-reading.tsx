@@ -2,13 +2,16 @@
 
 import Link from "next/link";
 import { useReading } from "@/context/reading-context";
+import { useLanguage } from "@/context/language-context";
 
 export default function ResumeReading() {
   const { lastPosition } = useReading();
+  const { t, translateSurahName, locale } = useLanguage();
 
   if (!lastPosition) return null;
 
-  const timeAgo = getTimeAgo(lastPosition.timestamp);
+  const timeAgo = getTimeAgo(lastPosition.timestamp, t);
+  const localizedSurahName = translateSurahName(lastPosition.surahId, lastPosition.surahName);
 
   return (
     <section className="mx-auto max-w-7xl px-6 pb-8">
@@ -21,15 +24,15 @@ export default function ResumeReading() {
 
             <div>
               <p className="mb-1 text-sm font-medium text-muted-foreground">
-                استكمل القراءة
+                {t("resumeReading")}
               </p>
 
               <h2 className="text-xl font-bold text-foreground md:text-2xl">
-                سورة {lastPosition.surahName} - الآية {lastPosition.verseNumber}
+                {t("resumeReadingDetails", { name: localizedSurahName, number: lastPosition.verseNumber })}
               </h2>
 
               <p className="mt-1 text-sm text-muted-foreground">
-                آخر قراءة: {timeAgo}
+                {t("lastRead")}: {timeAgo}
               </p>
             </div>
           </div>
@@ -38,10 +41,10 @@ export default function ResumeReading() {
             href={`/surah/${lastPosition.surahId}#verse-${lastPosition.verseNumber}`}
             className="group flex shrink-0 items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
           >
-            <span>متابعة القراءة</span>
+            <span>{t("resumeReadingButton")}</span>
 
             <svg
-              className="h-5 w-5 transition-transform group-hover:-translate-x-1"
+              className={`h-5 w-5 transition-transform ${locale === "ar" ? "group-hover:-translate-x-1" : "group-hover:translate-x-1"}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -50,7 +53,7 @@ export default function ResumeReading() {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d="M14 5l7 7m0 0l-7 7m7-7H3"
+                d={locale === "ar" ? "M10 19l-7-7m0 0l7-7m-7 7h18" : "M14 5l7 7m0 0l-7 7m7-7H3"}
               />
             </svg>
           </Link>
@@ -60,29 +63,29 @@ export default function ResumeReading() {
   );
 }
 
-function getTimeAgo(timestamp: number): string {
+function getTimeAgo(timestamp: number, t: any): string {
   const now = Date.now();
   const diffInSeconds = Math.floor((now - timestamp) / 1000);
 
   if (diffInSeconds < 60) {
-    return "منذ لحظات";
+    return t("secondsAgo");
   }
 
   const diffInMinutes = Math.floor(diffInSeconds / 60);
   if (diffInMinutes < 60) {
-    return `منذ ${diffInMinutes} ${diffInMinutes === 1 ? "دقيقة" : "دقائق"}`;
+    return diffInMinutes === 1 ? t("oneMinuteAgo") : t("minutesAgo", { count: diffInMinutes });
   }
 
   const diffInHours = Math.floor(diffInMinutes / 60);
   if (diffInHours < 24) {
-    return `منذ ${diffInHours} ${diffInHours === 1 ? "ساعة" : "ساعات"}`;
+    return diffInHours === 1 ? t("oneHourAgo") : t("hoursAgo", { count: diffInHours });
   }
 
   const diffInDays = Math.floor(diffInHours / 24);
   if (diffInDays < 7) {
-    return `منذ ${diffInDays} ${diffInDays === 1 ? "يوم" : "أيام"}`;
+    return diffInDays === 1 ? t("oneDayAgo") : t("daysAgo", { count: diffInDays });
   }
 
   const diffInWeeks = Math.floor(diffInDays / 7);
-  return `منذ ${diffInWeeks} ${diffInWeeks === 1 ? "أسبوع" : "أسابيع"}`;
+  return diffInWeeks === 1 ? t("oneWeekAgo") : t("weeksAgo", { count: diffInWeeks });
 }

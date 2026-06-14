@@ -1,11 +1,13 @@
 "use client";
 
 import { useAudio } from "@/context/audio-context";
+import { useLanguage } from "@/context/language-context";
 import { Play, Pause, SkipForward, SkipBack } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 export default function AudioPlayer() {
     const { state, pause, resume, nextVerse, previousVerse, seek } = useAudio();
+    const { t } = useLanguage();
     const sliderRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -35,10 +37,10 @@ export default function AudioPlayer() {
             <div className="mb-4 flex items-center justify-between">
                 <div>
                     <h3 className="text-lg font-bold text-foreground">
-                        الاستماع للقرآن
+                        {t("listenQuran")}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                        الآية {state.currentVerse}
+                        {t("verseNumberLabel", { num: state.currentVerse })}
                     </p>
                 </div>
 

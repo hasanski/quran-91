@@ -1,11 +1,14 @@
 import Link from "next/link";
 import type { Surah } from "@/data/surahs";
+import { useLanguage } from "@/context/language-context";
 
 type SurahCardProps = {
     surah: Surah;
 };
 
 export default function SurahCard({ surah }: SurahCardProps) {
+    const { t, translateSurahName, translateSurahType, locale } = useLanguage();
+
     return (
         <Link
             href={`/surah/${surah.id}`}
@@ -17,25 +20,25 @@ export default function SurahCard({ surah }: SurahCardProps) {
                 </div>
 
                 <span className="rounded-full border border-border bg-muted px-3 py-1 text-xs text-muted-foreground">
-                    {surah.type}
+                    {translateSurahType(surah.type)}
                 </span>
             </div>
 
             <h2 className="mb-2 text-2xl font-bold text-foreground">
-                {surah.name}
+                {translateSurahName(surah.id, surah.name)}
             </h2>
 
             <p className="mb-6 text-sm text-muted-foreground">
-                عدد الآيات: {surah.verses}
+                {t("versesCountText", { count: surah.verses })}
             </p>
 
             <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-primary transition group-hover:opacity-80">
-                    قراءة السورة
+                    {t("readSurah")}
                 </span>
 
                 <span className="text-xl text-muted-foreground transition group-hover:text-primary">
-                    ←
+                    {locale === "ar" ? "←" : "→"}
                 </span>
             </div>
         </Link>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useAudio } from "@/context/audio-context";
+import { useLanguage } from "@/context/language-context";
 import { Play, Volume2, VolumeX } from "lucide-react";
 
 type ReadingToolbarProps = {
@@ -17,11 +18,12 @@ export default function ReadingToolbar({
     versesCount,
 }: ReadingToolbarProps) {
     const { state, playSurah, pause, resume } = useAudio();
+    const { t } = useLanguage();
 
     async function handleShare() {
         try {
             await navigator.clipboard.writeText(window.location.href);
-            alert("تم نسخ رابط الصفحة");
+            alert(t("linkCopied"));
         } catch (error) {
             console.error("Share failed:", error);
         }
@@ -29,7 +31,7 @@ export default function ReadingToolbar({
 
     function handleClearPosition() {
         localStorage.removeItem("readingPosition");
-        alert("تم مسح موضع القراءة المحفوظ");
+        alert(t("positionCleared"));
     }
 
     return (
@@ -37,10 +39,10 @@ export default function ReadingToolbar({
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h2 className="text-lg font-semibold text-foreground">
-                        أدوات القراءة
+                        {t("readingTools")}
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                        تحكم في طريقة عرض السورة بسهولة
+                        {t("readingToolsDesc")}
                     </p>
                 </div>
 
@@ -74,12 +76,12 @@ export default function ReadingToolbar({
                         {state.isPlaying && state.surahId === surahId ? (
                             <span className="flex items-center gap-2">
                                 <VolumeX size={16} />
-                                إيقاف
+                                {t("stop")}
                             </span>
                         ) : (
                             <span className="flex items-center gap-2">
                                 <Play size={16} />
-                                استماع
+                                {t("listen")}
                             </span>
                         )}
                     </button>
@@ -88,15 +90,15 @@ export default function ReadingToolbar({
                         onClick={handleShare}
                         className="rounded-2xl border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition hover:bg-primary/20"
                     >
-                        مشاركة
+                        {t("share")}
                     </button>
 
                     <button
                         onClick={handleClearPosition}
                         className="rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive transition hover:bg-destructive/20"
-                        title="مسح موضع القراءة المحفوظ"
+                        title={t("clearPosition")}
                     >
-                        مسح الموضع
+                        {t("clearPosition")}
                     </button>
                 </div>
             </div>

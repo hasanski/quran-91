@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useAudio } from "@/context/audio-context";
+import { useLanguage } from "@/context/language-context";
 import { Volume2 } from "lucide-react";
 
 type VerseCardProps = {
     id?: string;
     verseNumber: number;
     verseText: string;
+    verseTranslation?: string;
     fontSizeClass: string;
     surahId?: number;
     versesCount?: number;
@@ -17,12 +19,14 @@ export default function VerseCard({
     id,
     verseNumber,
     verseText,
+    verseTranslation,
     fontSizeClass,
     surahId,
     versesCount,
 }: VerseCardProps) {
     const [copied, setCopied] = useState(false);
     const { state, playVerse } = useAudio();
+    const { t, locale } = useLanguage();
     const verseRef = useRef<HTMLElement>(null);
 
     useEffect(() => {
@@ -70,25 +74,34 @@ export default function VerseCard({
                                     ? "border-primary bg-primary/20 text-primary"
                                     : "border-border bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary"
                             }`}
-                            title="استماع لهذه الآية"
+                            title={t("listenToVerse")}
                         >
                             <Volume2 size={16} />
                         </button>
                     )}
                     <button
                         onClick={handleCopy}
-                        className="rounded-xl border border-border bg-muted px-3 py-1 text-sm text-muted-foreground transition hover:bg-primary/10 hover:text-primary"
+                        className="rounded-xl border border-border bg-muted px-3 py-1 text-sm text-muted-foreground transition hover:bg-primary/10 hover:text-primary cursor-pointer"
                     >
-                        {copied ? "تم النسخ" : "نسخ"}
+                        {copied ? t("copied") : t("copy")}
                     </button>
                 </div>
             </div>
 
             <p
                 className={`text-right leading-[2.4] text-foreground ${fontSizeClass}`}
+                dir="rtl"
             >
                 {verseText}
             </p>
+
+            {locale === "ru" && verseTranslation && (
+                <div className="mt-4 border-t border-border/50 pt-4 text-start">
+                    <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                        {verseTranslation}
+                    </p>
+                </div>
+            )}
         </article>
     );
 }

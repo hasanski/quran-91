@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useRef, useEffect, useCallback } from "react";
+import { useLanguage } from "@/context/language-context";
 
 type AudioState = {
     isPlaying: boolean;
@@ -39,6 +40,7 @@ const RECITERS: Record<number, string> = {
 
 export function AudioProvider({ children }: { children: React.ReactNode }) {
     const audioRef = useRef<HTMLAudioElement>(null);
+    const { t } = useLanguage();
     const [state, setState] = useState<AudioState>({
         isPlaying: false,
         currentVerse: null,
@@ -88,7 +90,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                 }));
             } catch (error) {
                 console.error("Playback failed:", error);
-                alert("حدث خطأ أثناء تشغيل الصوت");
+                alert(t("playbackError"));
             }
         }
     }, [state.surahId, loadVerse, getVerseAudioUrl]);
@@ -116,7 +118,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                 }));
             } catch (error) {
                 console.error("Playback failed:", error);
-                alert("حدث خطأ أثناء تشغيل الصوت");
+                alert(t("playbackError"));
             }
         }
     }, [getVerseAudioUrl, loadVerse]);

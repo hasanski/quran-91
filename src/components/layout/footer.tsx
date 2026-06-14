@@ -1,6 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useLanguage } from "@/context/language-context";
 
 export default function Footer() {
+    const { t } = useLanguage();
+
     return (
         <footer className="border-t border-border bg-card">
             <div className="mx-auto max-w-7xl px-6 py-12">
@@ -10,37 +15,37 @@ export default function Footer() {
                             Quran Modern
                         </h3>
                         <p className="text-muted-foreground leading-8">
-                            تجربة حديثة ومريحة لقراءة القرآن الكريم بتصميم نظيف وسريع.
+                            {t("footerDesc")}
                         </p>
                     </div>
 
                     <div>
                         <h4 className="mb-4 text-lg font-semibold text-foreground">
-                            روابط
+                            {t("links")}
                         </h4>
 
                         <div className="flex flex-col gap-3">
                             <Link href="/" className="text-muted-foreground hover:text-foreground transition">
-                                الرئيسية
+                                {t("home")}
                             </Link>
 
                             <Link href="/surahs" className="text-muted-foreground hover:text-foreground transition">
-                                السور
+                                {t("surahs")}
                             </Link>
 
                             <Link href="/search" className="text-muted-foreground hover:text-foreground transition">
-                                البحث
+                                {t("search")}
                             </Link>
                         </div>
                     </div>
 
                     <div>
                         <h4 className="mb-4 text-lg font-semibold text-foreground">
-                            الهدف
+                            {t("ourGoal")}
                         </h4>
 
                         <p className="text-muted-foreground leading-8">
-                            تقديم تجربة قراءة هادئة ومريحة للقرآن الكريم بتصميم عصري.
+                            {t("goalDesc")}
                         </p>
                     </div>
                 </div>

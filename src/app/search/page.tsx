@@ -3,40 +3,50 @@
 import { useMemo, useState } from "react";
 import { surahs } from "@/data/surahs";
 import SurahCard from "@/components/surah/surah-card";
+import { useLanguage } from "@/context/language-context";
 
 export default function SearchPage() {
     const [searchTerm, setSearchTerm] = useState("");
+    const { t, translateSurahName, translateSurahType } = useLanguage();
 
     const filteredSurahs = useMemo(() => {
-        const term = searchTerm.trim();
+        const term = searchTerm.trim().toLowerCase();
 
         if (!term) {
             return surahs;
         }
 
         return surahs.filter((surah) => {
+            const nameAr = surah.name;
+            const nameRu = translateSurahName(surah.id, surah.name).toLowerCase();
+            const typeAr = surah.type;
+            const typeRu = translateSurahType(surah.type).toLowerCase();
+            const idStr = surah.id.toString();
+
             return (
-                surah.name.includes(term) ||
-                surah.type.includes(term) ||
-                surah.id.toString().includes(term)
+                nameAr.includes(term) ||
+                nameRu.includes(term) ||
+                typeAr.includes(term) ||
+                typeRu.includes(term) ||
+                idStr.includes(term)
             );
         });
-    }, [searchTerm]);
+    }, [searchTerm, translateSurahName, translateSurahType]);
 
     return (
         <main className="min-h-screen bg-background text-foreground">
             <section className="mx-auto max-w-7xl px-6 py-16">
                 <div className="mb-10 text-center">
                     <span className="mb-4 inline-block rounded-full border border-primary/20 bg-primary/10 px-4 py-1 text-sm text-primary">
-                        البحث
+                        {t("search")}
                     </span>
 
                     <h1 className="mb-4 text-4xl font-bold md:text-5xl">
-                        ابحث عن سورة
+                        {t("searchSurah")}
                     </h1>
 
                     <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-                        اكتب اسم السورة، رقمها، أو نوعها للوصول السريع.
+                        {t("searchMainDesc")}
                     </p>
                 </div>
 
@@ -45,23 +55,23 @@ export default function SearchPage() {
                         type="text"
                         value={searchTerm}
                         onChange={(event) => setSearchTerm(event.target.value)}
-                        placeholder="مثال: البقرة أو 2 أو مكية"
-                        className="w-full rounded-[28px] border border-border bg-input px-6 py-5 text-right text-lg text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/30 focus:bg-input/80"
+                        placeholder={t("searchPlaceholderMain")}
+                        className="w-full rounded-[28px] border border-border bg-input px-6 py-5 text-start text-lg text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/30 focus:bg-input/80"
                     />
                 </div>
 
                 <div className="mb-8 flex items-center justify-between gap-4 text-sm text-muted-foreground">
-                    <span>عدد النتائج: {filteredSurahs.length}</span>
-                    <span>اكتب للبحث بشكل مباشر</span>
+                    <span>{t("searchResults", { count: filteredSurahs.length })}</span>
+                    <span>{t("searchDirectly")}</span>
                 </div>
 
                 {filteredSurahs.length === 0 ? (
                     <div className="rounded-[32px] border border-border bg-card p-10 text-center backdrop-blur-sm">
                         <h2 className="mb-3 text-2xl font-bold text-foreground">
-                            لا توجد نتائج
+                            {t("noResults")}
                         </h2>
                         <p className="text-muted-foreground">
-                            حاول البحث باسم آخر أو رقم سورة مختلف.
+                            {t("searchNotFoundDesc")}
                         </p>
                     </div>
                 ) : (
