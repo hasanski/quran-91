@@ -108,6 +108,19 @@ export default function SurahDetailsPage() {
     }, [surah, savePosition]);
 
     useEffect(() => {
+        if (surah) {
+            const localizedName = translateSurahName(surah.id, surah.name);
+            const titlePrefix = locale === "ar" ? `سورة ${surah.name}` : `Сура ${localizedName}`;
+            document.title = `${titlePrefix} - القرآن الكريم`;
+        } else {
+            document.title = "القرآن الكريم";
+        }
+        return () => {
+            document.title = "القرآن الكريم";
+        };
+    }, [surah, locale, translateSurahName]);
+
+    useEffect(() => {
         const hash = window.location.hash;
         if (hash) {
             const verseId = hash.replace("#", "");

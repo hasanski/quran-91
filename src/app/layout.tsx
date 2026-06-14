@@ -8,7 +8,7 @@ import { AudioProvider } from "@/context/audio-context";
 import { LanguageProvider } from "@/context/language-context";
 
 export const metadata: Metadata = {
-  title: "Quran Modern",
+  title: "القرآن الكريم",
   description: "تجربة حديثة لقراءة القرآن الكريم",
 };
 
