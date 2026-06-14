@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useAudio } from "@/context/audio-context";
 import { useLanguage } from "@/context/language-context";
-import { Volume2 } from "lucide-react";
+import { Volume2, Share2 } from "lucide-react";
+import ShareModal from "@/components/surah/share-modal";
 
 type VerseCardProps = {
     id?: string;
@@ -25,6 +26,7 @@ export default function VerseCard({
     versesCount,
 }: VerseCardProps) {
     const [copied, setCopied] = useState(false);
+    const [isShareOpen, setIsShareOpen] = useState(false);
     const { state, playVerse } = useAudio();
     const { t, locale } = useLanguage();
     const verseRef = useRef<HTMLElement>(null);
@@ -79,12 +81,23 @@ export default function VerseCard({
                             <Volume2 size={16} />
                         </button>
                     )}
+                    
                     <button
                         onClick={handleCopy}
                         className="rounded-xl border border-border bg-muted px-3 py-1 text-sm text-muted-foreground transition hover:bg-primary/10 hover:text-primary cursor-pointer"
                     >
                         {copied ? t("copied") : t("copy")}
                     </button>
+
+                    {surahId && (
+                        <button
+                            onClick={() => setIsShareOpen(true)}
+                            className="rounded-xl border border-border bg-muted px-3 py-1 text-sm text-muted-foreground transition hover:bg-primary/10 hover:text-primary cursor-pointer"
+                            title={t("share")}
+                        >
+                            <Share2 size={16} />
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -101,6 +114,17 @@ export default function VerseCard({
                         {verseTranslation}
                     </p>
                 </div>
+            )}
+
+            {surahId && (
+                <ShareModal
+                    isOpen={isShareOpen}
+                    onClose={() => setIsShareOpen(false)}
+                    verseNumber={verseNumber}
+                    verseText={verseText}
+                    verseTranslation={verseTranslation}
+                    surahId={surahId}
+                />
             )}
         </article>
     );
