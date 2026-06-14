@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import VerseCard from "@/components/surah/verse-card";
 import ReadingToolbar from "@/components/surah/reading-toolbar";
+import AudioPlayer from "@/components/audio/audio-player";
 import { useParams } from "next/navigation";
 import { surahDetails } from "@/data/surah-details";
+import { useReading } from "@/context/reading-context";
 
 
 const fontSizes = ["text-2xl md:text-3xl", "text-3xl md:text-4xl", "text-4xl md:text-5xl"];
@@ -12,8 +14,49 @@ const fontSizes = ["text-2xl md:text-3xl", "text-3xl md:text-4xl", "text-4xl md:
 export default function SurahDetailsPage() {
     const params = useParams<{ id: string }>();
     const [fontIndex, setFontIndex] = useState(0);
+    const { savePosition } = useReading();
+    const savedVerseRef = useRef<HTMLDivElement>(null);
 
     const surah = useMemo(() => surahDetails[params.id], [params.id]);
+
+    useEffect(() => {
+        if (!surah) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const verseNumber = parseInt(entry.target.id.replace("verse-", ""));
+                        savePosition(surah.id, surah.name, verseNumber);
+                    }
+                });
+            },
+            { threshold: 0.5 }
+        );
+
+        const verseElements = document.querySelectorAll('[id^="verse-"]');
+        verseElements.forEach((el) => observer.observe(el));
+
+        return () => observer.disconnect();
+    }, [surah, savePosition]);
+
+    useEffect(() => {
+        const hash = window.location.hash;
+        if (hash) {
+            const verseId = hash.replace("#", "");
+            const element = document.getElementById(verseId);
+            if (element) {
+                setTimeout(() => {
+                    element.scrollIntoView({ behavior: "smooth", block: "center" });
+                    element.classList.add("ring-2", "ring-primary", "ring-offset-2", "ring-offset-background", "rounded-[28px]");
+                    setTimeout(() => {
+                        element.classList.remove("ring-2", "ring-primary", "ring-offset-2", "ring-offset-background", "rounded-[28px]");
+                    }, 3000);
+                }, 500);
+            }
+        }
+    }, []);
+
     function handleIncreaseFont() {
         setFontIndex((prev) => Math.min(prev + 1, fontSizes.length - 1));
     }
@@ -68,15 +111,22 @@ export default function SurahDetailsPage() {
                 <ReadingToolbar
                     onIncreaseFont={handleIncreaseFont}
                     onDecreaseFont={handleDecreaseFont}
+                    surahId={surah.id}
+                    versesCount={surah.versesCount}
                 />
+
+                <AudioPlayer />
 
                 <div className="space-y-6">
                     {surah.verses.map((verse, index) => (
                         <VerseCard
                             key={index}
+                            id={`verse-${index + 1}`}
                             verseNumber={index + 1}
                             verseText={verse}
                             fontSizeClass={fontSizes[fontIndex]}
+                            surahId={surah.id}
+                            versesCount={surah.versesCount}
                         />
                     ))}
                 </div>

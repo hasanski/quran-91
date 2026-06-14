@@ -3,6 +3,8 @@ import "./globals.css";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 import { ThemeProvider } from "@/context/theme-context";
+import { ReadingProvider } from "@/context/reading-context";
+import { AudioProvider } from "@/context/audio-context";
 
 export const metadata: Metadata = {
   title: "Quran Modern",
@@ -18,11 +20,15 @@ export default function RootLayout({
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body className="antialiased">
         <ThemeProvider>
-          <div className="flex min-h-screen flex-col">
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
+          <AudioProvider>
+            <ReadingProvider>
+              <div className="flex min-h-screen flex-col">
+                <Navbar />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </div>
+            </ReadingProvider>
+          </AudioProvider>
         </ThemeProvider>
       </body>
     </html>

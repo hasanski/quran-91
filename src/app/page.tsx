@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { surahs } from "@/data/surahs";
 import SurahCard from "@/components/surah/surah-card";
+import ResumeReading from "@/components/reading/resume-reading";
 
 export default function HomePage() {
   const featuredSurahs = surahs.slice(0, 4);
@@ -64,6 +65,9 @@ export default function HomePage() {
 
         </div>
       </section>
+
+      {/* 💾 استكمال القراءة */}
+      <ResumeReading />
 
       {/* 🌿 Featured Surahs */}
       <section className="mx-auto max-w-7xl px-6 pb-20">
