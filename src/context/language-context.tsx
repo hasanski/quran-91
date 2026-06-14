@@ -74,7 +74,9 @@ const translations = {
     meccan: "مكية",
     medinan: "مدنية",
     arabic: "العربية",
-    russian: "Русский"
+    russian: "Русский",
+    reciter: "القارئ",
+    selectReciter: "اختر القارئ"
   },
   ru: {
     home: "Главная",
@@ -145,7 +147,9 @@ const translations = {
     meccan: "Мекканская",
     medinan: "Мединская",
     arabic: "العربية",
-    russian: "Русский"
+    russian: "Русский",
+    reciter: "Чтец",
+    selectReciter: "Выбрать чтеца"
   }
 };
 

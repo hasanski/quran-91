@@ -2,6 +2,7 @@
 
 import { useAudio } from "@/context/audio-context";
 import { useLanguage } from "@/context/language-context";
+import ReciterSelector from "@/components/audio/reciter-selector";
 import { Play, Volume2, VolumeX } from "lucide-react";
 
 type ReadingToolbarProps = {
@@ -46,10 +47,12 @@ export default function ReadingToolbar({
                     </p>
                 </div>
 
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap items-center gap-3">
+                    <ReciterSelector />
+
                     <button
                         onClick={onIncreaseFont}
-                        className="rounded-2xl border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition hover:bg-primary/20"
+                        className="rounded-2xl border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition hover:bg-primary/20 cursor-pointer"
                     >
                         A+
                     </button>

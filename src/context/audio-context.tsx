@@ -3,6 +3,46 @@
 import { createContext, useContext, useState, useRef, useEffect, useCallback } from "react";
 import { useLanguage } from "@/context/language-context";
 
+export type Reciter = {
+    id: string;
+    nameAr: string;
+    nameRu: string;
+    url: string;
+};
+
+export const RECITERS: Reciter[] = [
+    {
+        id: "alafasy",
+        nameAr: "مشاري راشد العفاسي",
+        nameRu: "Мишари Рашид аль-Афаси",
+        url: "https://everyayah.com/data/Alafasy_128kbps/",
+    },
+    {
+        id: "husary",
+        nameAr: "محمود خليل الحصري",
+        nameRu: "Махмуд Халиль аль-Хусари",
+        url: "https://everyayah.com/data/Husary_128kbps/",
+    },
+    {
+        id: "abdul_basit",
+        nameAr: "عبد الباسط عبد الصمد (مجود)",
+        nameRu: "Абдул Басит Абдус Самад (Муджаввад)",
+        url: "https://everyayah.com/data/Abdul_Basit_Mujawwad_128kbps/",
+    },
+    {
+        id: "minshawy",
+        nameAr: "محمد صديق المنشاوي",
+        nameRu: "Мухаммад Сиддик аль-Миншави",
+        url: "https://everyayah.com/data/Minshawy_Murattal_128kbps/",
+    },
+    {
+        id: "muaiqly",
+        nameAr: "ماهر المعيقلي",
+        nameRu: "Махер аль-Муайкли",
+        url: "https://everyayah.com/data/MaherAlMuaiqly128kbps/",
+    },
+];
+
 type AudioState = {
     isPlaying: boolean;
     currentVerse: number | null;
@@ -21,6 +61,9 @@ type AudioContextType = {
     nextVerse: () => void;
     previousVerse: () => void;
     seek: (time: number) => void;
+    reciters: Reciter[];
+    currentReciter: Reciter;
+    setReciter: (reciterId: string) => void;
 };
 
 const AudioContext = createContext<AudioContextType | null>(null);
@@ -33,14 +76,10 @@ export function useAudio() {
     return context;
 }
 
-const RECITERS: Record<number, string> = {
-    1: "https://everyayah.com/data/Alafasy_128kbps/",
-    2: "https://everyayah.com/data/Alafasy_128kbps/",
-};
-
 export function AudioProvider({ children }: { children: React.ReactNode }) {
     const audioRef = useRef<HTMLAudioElement>(null);
     const { t } = useLanguage();
+    const [currentReciterId, setCurrentReciterId] = useState<string>("alafasy");
     const [state, setState] = useState<AudioState>({
         isPlaying: false,
         currentVerse: null,
@@ -50,17 +89,31 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         maxVerses: 0,
     });
 
-    const getVerseAudioUrl = useCallback((surahId: number, verseNumber: number) => {
-        const reciterUrl = RECITERS[surahId] || "https://everyayah.com/data/Alafasy_128kbps/";
-        const formattedSurah = surahId.toString().padStart(3, "0");
-        const formattedVerse = verseNumber.toString().padStart(3, "0");
-        return `${reciterUrl}${formattedSurah}${formattedVerse}.mp3`;
+    useEffect(() => {
+        const savedReciter = localStorage.getItem("currentReciterId");
+        if (savedReciter && RECITERS.some(r => r.id === savedReciter)) {
+            setCurrentReciterId(savedReciter);
+        }
     }, []);
 
-    const loadVerse = useCallback((surahId: number, verseNumber: number) => {
+    const setReciter = useCallback((reciterId: string) => {
+        if (RECITERS.some(r => r.id === reciterId)) {
+            setCurrentReciterId(reciterId);
+            localStorage.setItem("currentReciterId", reciterId);
+        }
+    }, []);
+
+    const getVerseAudioUrl = useCallback((surahId: number, verseNumber: number, reciterId: string) => {
+        const reciter = RECITERS.find(r => r.id === reciterId) || RECITERS[0];
+        const formattedSurah = surahId.toString().padStart(3, "0");
+        const formattedVerse = verseNumber.toString().padStart(3, "0");
+        return `${reciter.url}${formattedSurah}${formattedVerse}.mp3`;
+    }, []);
+
+    const loadVerse = useCallback((surahId: number, verseNumber: number, reciterId: string) => {
         if (!audioRef.current) return;
 
-        const url = getVerseAudioUrl(surahId, verseNumber);
+        const url = getVerseAudioUrl(surahId, verseNumber, reciterId);
         audioRef.current.src = url;
         audioRef.current.load();
     }, [getVerseAudioUrl]);
@@ -69,10 +122,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         const surahId = surahIdOverride || state.surahId;
         if (!surahId) return;
 
-        const url = getVerseAudioUrl(surahId, verseNumber);
+        const url = getVerseAudioUrl(surahId, verseNumber, currentReciterId);
         console.log("Playing verse:", verseNumber, "surahId:", surahId, "URL:", url);
 
-        loadVerse(surahId, verseNumber);
+        loadVerse(surahId, verseNumber, currentReciterId);
 
         if (audioRef.current) {
             try {
@@ -93,13 +146,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                 alert(t("playbackError"));
             }
         }
-    }, [state.surahId, loadVerse, getVerseAudioUrl]);
+    }, [state.surahId, loadVerse, getVerseAudioUrl, currentReciterId, t]);
 
     const playSurah = useCallback(async (surahId: number, startVerse = 1, maxVerses = 1000) => {
-        const url = getVerseAudioUrl(surahId, startVerse);
+        const url = getVerseAudioUrl(surahId, startVerse, currentReciterId);
         console.log("Playing surah:", surahId, "verse:", startVerse, "URL:", url);
 
-        loadVerse(surahId, startVerse);
+        loadVerse(surahId, startVerse, currentReciterId);
 
         if (audioRef.current) {
             try {
@@ -121,7 +174,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                 alert(t("playbackError"));
             }
         }
-    }, [getVerseAudioUrl, loadVerse]);
+    }, [getVerseAudioUrl, loadVerse, currentReciterId, t]);
 
     const pause = useCallback(() => {
         if (audioRef.current) {
@@ -156,6 +209,21 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             audioRef.current.currentTime = time;
         }
     }, []);
+
+    // Hot-swapping effect when reciter changes during active session:
+    useEffect(() => {
+        if (state.currentVerse !== null && state.surahId !== null && audioRef.current) {
+            const wasPlaying = state.isPlaying;
+            const url = getVerseAudioUrl(state.surahId, state.currentVerse, currentReciterId);
+            
+            audioRef.current.src = url;
+            audioRef.current.load();
+            if (wasPlaying) {
+                audioRef.current.play().catch(err => console.error("Playback failed after hot swap:", err));
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentReciterId]);
 
     useEffect(() => {
         const audio = audioRef.current;
@@ -194,6 +262,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         };
     }, [nextVerse]);
 
+    const currentReciter = RECITERS.find(r => r.id === currentReciterId) || RECITERS[0];
+
     const value = {
         state,
         playSurah,
@@ -203,6 +273,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         nextVerse,
         previousVerse,
         seek,
+        reciters: RECITERS,
+        currentReciter,
+        setReciter,
     };
 
     return (

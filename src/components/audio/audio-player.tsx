@@ -2,6 +2,7 @@
 
 import { useAudio } from "@/context/audio-context";
 import { useLanguage } from "@/context/language-context";
+import ReciterSelector from "@/components/audio/reciter-selector";
 import { Play, Pause, SkipForward, SkipBack } from "lucide-react";
 import { useEffect, useRef } from "react";
 
@@ -34,7 +35,7 @@ export default function AudioPlayer() {
 
     return (
         <div className="mb-6 rounded-[24px] border border-primary/10 bg-gradient-to-br from-primary/5 to-primary/10 p-6 shadow-lg">
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h3 className="text-lg font-bold text-foreground">
                         {t("listenQuran")}
@@ -44,28 +45,32 @@ export default function AudioPlayer() {
                     </p>
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={previousVerse}
-                        disabled={state.currentVerse <= 1}
-                        className="rounded-full border border-border bg-background p-3 text-foreground transition hover:bg-primary/10 hover:text-primary disabled:opacity-30"
-                    >
-                        <SkipBack size={20} />
-                    </button>
+                <div className="flex flex-wrap items-center gap-3">
+                    <ReciterSelector />
 
-                    <button
-                        onClick={state.isPlaying ? pause : resume}
-                        className="rounded-full border border-primary bg-primary p-4 text-primary-foreground transition hover:opacity-90"
-                    >
-                        {state.isPlaying ? <Pause size={24} /> : <Play size={24} />}
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={previousVerse}
+                            disabled={state.currentVerse <= 1}
+                            className="rounded-full border border-border bg-background p-3 text-foreground transition hover:bg-primary/10 hover:text-primary disabled:opacity-30"
+                        >
+                            <SkipBack size={20} />
+                        </button>
 
-                    <button
-                        onClick={nextVerse}
-                        className="rounded-full border border-border bg-background p-3 text-foreground transition hover:bg-primary/10 hover:text-primary"
-                    >
-                        <SkipForward size={20} />
-                    </button>
+                        <button
+                            onClick={state.isPlaying ? pause : resume}
+                            className="rounded-full border border-primary bg-primary p-4 text-primary-foreground transition hover:opacity-90"
+                        >
+                            {state.isPlaying ? <Pause size={24} /> : <Play size={24} />}
+                        </button>
+
+                        <button
+                            onClick={nextVerse}
+                            className="rounded-full border border-border bg-background p-3 text-foreground transition hover:bg-primary/10 hover:text-primary"
+                        >
+                            <SkipForward size={20} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
