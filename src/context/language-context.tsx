@@ -76,7 +76,12 @@ const translations = {
     arabic: "العربية",
     russian: "Русский",
     reciter: "القارئ",
-    selectReciter: "اختر القارئ"
+    selectReciter: "اختر القارئ",
+    mushafMode: "وضع المصحف",
+    verseMode: "تجزئة الآيات",
+    mushafModeDesc: "عرض نص السورة بشكل متصل ومستمر كصفحات المصحف الشريف",
+    hoverToSeeTranslation: "مرر الفأرة فوق الآية لعرض الترجمة أو اضغط لتشغيل الصوت",
+    bismillah: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
   },
   ru: {
     home: "Главная",
@@ -149,7 +154,12 @@ const translations = {
     arabic: "العربية",
     russian: "Русский",
     reciter: "Чтец",
-    selectReciter: "Выбрать чтеца"
+    selectReciter: "Выбрать чтеца",
+    mushafMode: "Режим Мусхафа",
+    verseMode: "Поаятный режим",
+    mushafModeDesc: "Отображение суры в виде сплошного текста, как в книге Корана",
+    hoverToSeeTranslation: "Наведите на аят для перевода или нажмите для аудио",
+    bismillah: "Во имя Аллаха, Милостивого, Милосердного"
   }
 };
 

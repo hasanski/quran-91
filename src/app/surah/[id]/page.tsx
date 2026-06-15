@@ -8,6 +8,7 @@ import { useParams } from "next/navigation";
 import { surahs } from "@/data/surahs";
 import { useReading } from "@/context/reading-context";
 import { useLanguage } from "@/context/language-context";
+import { useAudio } from "@/context/audio-context";
 
 const fontSizes = ["text-2xl md:text-3xl", "text-3xl md:text-4xl", "text-4xl md:text-5xl"];
 
@@ -27,10 +28,29 @@ export default function SurahDetailsPage() {
     const [fontIndex, setFontIndex] = useState(0);
     const { savePosition } = useReading();
     const { t, translateSurahName, translateSurahType, locale } = useLanguage();
+    const { state: audioState, playVerse } = useAudio();
     
     const [surah, setSurah] = useState<SurahDetails | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const [isMushafMode, setIsMushafMode] = useState(false);
+    const [hoveredVerse, setHoveredVerse] = useState<number | null>(null);
+
+    useEffect(() => {
+        const saved = localStorage.getItem("isMushafMode");
+        if (saved !== null) {
+            setIsMushafMode(saved === "true");
+        }
+    }, []);
+
+    const handleToggleMushafMode = () => {
+        setIsMushafMode((prev) => {
+            const next = !prev;
+            localStorage.setItem("isMushafMode", String(next));
+            return next;
+        });
+    };
 
     const surahId = parseInt(params.id);
     const meta = useMemo(() => surahs.find(s => s.id === surahId), [surahId]);
@@ -136,6 +156,16 @@ export default function SurahDetailsPage() {
             }
         }
     }, []);
+
+    // Auto-scroll to active verse in Mushaf Mode
+    useEffect(() => {
+        if (isMushafMode && audioState.isPlaying && audioState.currentVerse) {
+            const activeElement = document.getElementById(`verse-${audioState.currentVerse}`);
+            if (activeElement) {
+                activeElement.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }
+    }, [isMushafMode, audioState.isPlaying, audioState.currentVerse]);
 
     function handleIncreaseFont() {
         setFontIndex((prev) => Math.min(prev + 1, fontSizes.length - 1));
@@ -246,24 +276,96 @@ export default function SurahDetailsPage() {
                     onDecreaseFont={handleDecreaseFont}
                     surahId={surah.id}
                     versesCount={surah.versesCount}
+                    isMushafMode={isMushafMode}
+                    onToggleMushafMode={handleToggleMushafMode}
                 />
 
                 <AudioPlayer />
 
-                <div className="space-y-6">
-                    {surah.verses.map((verse, index) => (
-                        <VerseCard
-                            key={index}
-                            id={`verse-${index + 1}`}
-                            verseNumber={index + 1}
-                            verseText={verse}
-                            verseTranslation={surah.versesTranslations?.ru?.[index]}
-                            fontSizeClass={fontSizes[fontIndex]}
-                            surahId={surah.id}
-                            versesCount={surah.versesCount}
-                        />
-                    ))}
-                </div>
+                {isMushafMode ? (
+                    <div className="relative rounded-[32px] border-4 border-amber-600/30 bg-[#FAF6EE] dark:bg-[#151D2A] p-8 md:p-12 shadow-inner text-justify transition-all duration-300">
+                        {/* Decorative corner borders */}
+                        <div className="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-amber-600/40 rounded-tl-md" />
+                        <div className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-amber-600/40 rounded-tr-md" />
+                        <div className="absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-amber-600/40 rounded-bl-md" />
+                        <div className="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-amber-600/40 rounded-br-md" />
+
+                        {/* Bismillah Calligraphy (except for Surah 9 (Al-Tawbah) and Surah 1 (Al-Fatihah, which already contains Bismillah in verse 1)) */}
+                        {surah.id !== 9 && surah.id !== 1 && (
+                            <div className="mb-10 text-center font-serif text-3xl md:text-4xl text-amber-900/95 dark:text-amber-500/95 border-b border-amber-600/10 pb-6 select-none">
+                                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+                            </div>
+                        )}
+
+                        {/* Continuous verses */}
+                        <div className="text-right tracking-wide leading-[2.6] text-amber-950 dark:text-amber-100/90" dir="rtl">
+                            {surah.verses.map((verse, index) => {
+                                const verseNumber = index + 1;
+                                const isPlaying = audioState.currentVerse === verseNumber && audioState.surahId === surah.id && audioState.isPlaying;
+                                const isHovered = hoveredVerse === verseNumber;
+
+                                return (
+                                    <span
+                                        key={index}
+                                        id={`verse-${verseNumber}`}
+                                        onClick={() => playVerse(verseNumber, surah.id, surah.versesCount)}
+                                        onMouseEnter={() => setHoveredVerse(verseNumber)}
+                                        onMouseLeave={() => setHoveredVerse(null)}
+                                        className={`inline cursor-pointer px-1 py-0.5 rounded transition-all duration-200 ${fontSizes[fontIndex]} ${
+                                            isPlaying
+                                                ? "bg-primary/20 text-primary font-semibold shadow-sm border-b-2 border-primary"
+                                                : isHovered
+                                                ? "bg-primary/10 text-primary"
+                                                : "hover:bg-primary/5 hover:text-primary"
+                                        }`}
+                                    >
+                                        {verse}
+                                        {/* Custom Ayah Separator SVG */}
+                                        <span className="inline-flex relative mx-2 text-primary font-bold text-xs align-middle select-none w-8 h-8 items-center justify-center">
+                                            <svg className="w-8 h-8 text-amber-600/40 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth="1.5">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                            </svg>
+                                            <span className="absolute inset-0 flex items-center justify-center text-[10px] text-amber-900 dark:text-amber-100 font-bold">
+                                                {verseNumber}
+                                            </span>
+                                        </span>
+                                    </span>
+                                );
+                            })}
+                        </div>
+
+                        {/* Floating translation footer for clean UX */}
+                        <div className="mt-8 border-t border-amber-600/10 pt-6">
+                            <div className="rounded-2xl bg-amber-600/5 dark:bg-amber-600/10 p-4 border border-amber-600/10">
+                                <p className="text-xs font-semibold text-amber-700 dark:text-amber-500 mb-1">
+                                    {t("hoverToSeeTranslation")}
+                                </p>
+                                <p className="text-sm md:text-base text-muted-foreground italic leading-relaxed min-h-[3rem]">
+                                    {hoveredVerse !== null
+                                        ? `[${hoveredVerse}]: ${surah.versesTranslations?.ru?.[hoveredVerse - 1] || "..."}`
+                                        : audioState.isPlaying && audioState.currentVerse
+                                        ? `[${audioState.currentVerse}]: ${surah.versesTranslations?.ru?.[audioState.currentVerse - 1] || "..."}`
+                                        : "..."}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="space-y-6">
+                        {surah.verses.map((verse, index) => (
+                            <VerseCard
+                                key={index}
+                                id={`verse-${index + 1}`}
+                                verseNumber={index + 1}
+                                verseText={verse}
+                                verseTranslation={surah.versesTranslations?.ru?.[index]}
+                                fontSizeClass={fontSizes[fontIndex]}
+                                surahId={surah.id}
+                                versesCount={surah.versesCount}
+                            />
+                        ))}
+                    </div>
+                )}
             </section>
         </main>
     );

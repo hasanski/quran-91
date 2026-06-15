@@ -3,13 +3,15 @@
 import { useAudio } from "@/context/audio-context";
 import { useLanguage } from "@/context/language-context";
 import ReciterSelector from "@/components/audio/reciter-selector";
-import { Play, Volume2, VolumeX } from "lucide-react";
+import { Play, Volume2, VolumeX, BookOpen } from "lucide-react";
 
 type ReadingToolbarProps = {
     onIncreaseFont: () => void;
     onDecreaseFont: () => void;
     surahId: number;
     versesCount: number;
+    isMushafMode: boolean;
+    onToggleMushafMode: () => void;
 };
 
 export default function ReadingToolbar({
@@ -17,6 +19,8 @@ export default function ReadingToolbar({
     onDecreaseFont,
     surahId,
     versesCount,
+    isMushafMode,
+    onToggleMushafMode,
 }: ReadingToolbarProps) {
     const { state, playSurah, pause, resume } = useAudio();
     const { t } = useLanguage();
@@ -62,6 +66,19 @@ export default function ReadingToolbar({
                         className="rounded-2xl border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition hover:bg-primary/20"
                     >
                         A-
+                    </button>
+
+                    <button
+                        onClick={onToggleMushafMode}
+                        className={`rounded-2xl border px-4 py-2 text-sm font-medium transition cursor-pointer flex items-center gap-2 ${
+                            isMushafMode
+                                ? "border-primary bg-primary/20 text-primary"
+                                : "border-primary/20 bg-primary/10 text-primary hover:bg-primary/20"
+                        }`}
+                        title={isMushafMode ? t("verseMode") : t("mushafMode")}
+                    >
+                        <BookOpen size={16} />
+                        <span>{isMushafMode ? t("verseMode") : t("mushafMode")}</span>
                     </button>
 
                     <button
