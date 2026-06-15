@@ -292,13 +292,13 @@ export default function SurahDetailsPage() {
 
                         {/* Bismillah Calligraphy (except for Surah 9 (Al-Tawbah) and Surah 1 (Al-Fatihah, which already contains Bismillah in verse 1)) */}
                         {surah.id !== 9 && surah.id !== 1 && (
-                            <div className="mb-10 text-center font-serif text-3xl md:text-4xl text-amber-900/95 dark:text-amber-500/95 border-b border-amber-600/10 pb-6 select-none">
+                            <div className="quran-text mb-10 text-center font-serif text-3xl md:text-4xl text-amber-900/95 dark:text-amber-500/95 border-b border-amber-600/10 pb-6 select-none">
                                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
                             </div>
                         )}
 
                         {/* Continuous verses */}
-                        <div className="text-right tracking-wide leading-[2.6] text-amber-950 dark:text-amber-100/90" dir="rtl">
+                        <div className="quran-text text-right tracking-wide leading-[2.6] text-amber-950 dark:text-amber-100/90" dir="rtl">
                             {surah.verses.map((verse, index) => {
                                 const verseNumber = index + 1;
                                 const isPlaying = audioState.currentVerse === verseNumber && audioState.surahId === surah.id && audioState.isPlaying;

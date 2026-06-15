@@ -177,7 +177,7 @@ export default function ShareModal({
                             {/* Verse Text Area */}
                             <div className="my-auto flex flex-col justify-center space-y-4 pt-4">
                                 <p
-                                    className="text-center text-xl font-medium leading-[2.1] md:text-2xl"
+                                    className="quran-text text-center text-xl font-medium leading-[2.1] md:text-2xl"
                                     dir="rtl"
                                 >
                                     {verseText}

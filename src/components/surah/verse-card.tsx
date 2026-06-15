@@ -102,7 +102,7 @@ export default function VerseCard({
             </div>
 
             <p
-                className={`text-right leading-[2.4] text-foreground ${fontSizeClass}`}
+                className={`quran-text text-right leading-[2.4] text-foreground ${fontSizeClass}`}
                 dir="rtl"
             >
                 {verseText}
