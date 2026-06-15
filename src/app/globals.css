@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Amiri+Quran&display=swap');
 
 :root {
   --background: #F8FAFC;
@@ -76,5 +75,5 @@ body {
 }
 
 .quran-text {
-  font-family: 'Amiri Quran', 'Amiri', serif;
+  font-family: var(--font-amiri-quran), 'Amiri', serif;
 }
