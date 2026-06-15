@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useRef, useEffect, useCallback } from "react";
 import { useLanguage } from "@/context/language-context";
+import { surahs } from "@/data/surahs";
 
 export type Reciter = {
     id: string;
@@ -78,7 +79,7 @@ export function useAudio() {
 
 export function AudioProvider({ children }: { children: React.ReactNode }) {
     const audioRef = useRef<HTMLAudioElement>(null);
-    const { t } = useLanguage();
+    const { t, locale, translateSurahName } = useLanguage();
     const [currentReciterId, setCurrentReciterId] = useState<string>("alafasy");
     const [state, setState] = useState<AudioState>({
         isPlaying: false,
@@ -129,10 +130,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
         if (audioRef.current) {
             try {
-                await new Promise((resolve) => {
-                    audioRef.current!.oncanplay = resolve;
-                    setTimeout(resolve, 1000);
-                });
                 await audioRef.current.play();
                 setState((prev) => ({
                     ...prev,
@@ -156,10 +153,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
         if (audioRef.current) {
             try {
-                await new Promise((resolve) => {
-                    audioRef.current!.oncanplay = resolve;
-                    setTimeout(resolve, 1000);
-                });
                 await audioRef.current.play();
                 setState((prev) => ({
                     ...prev,
@@ -261,6 +254,70 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             audio.removeEventListener("pause", handlePause);
         };
     }, [nextVerse]);
+
+    // Register Media Session action handlers
+    useEffect(() => {
+        if (!("mediaSession" in navigator)) return;
+
+        try {
+            navigator.mediaSession.setActionHandler("play", () => {
+                resume();
+            });
+            navigator.mediaSession.setActionHandler("pause", () => {
+                pause();
+            });
+            navigator.mediaSession.setActionHandler("nexttrack", () => {
+                nextVerse();
+            });
+            navigator.mediaSession.setActionHandler("previoustrack", () => {
+                previousVerse();
+            });
+        } catch (error) {
+            console.error("Failed to register mediaSession handlers:", error);
+        }
+
+        return () => {
+            try {
+                navigator.mediaSession.setActionHandler("play", null);
+                navigator.mediaSession.setActionHandler("pause", null);
+                navigator.mediaSession.setActionHandler("nexttrack", null);
+                navigator.mediaSession.setActionHandler("previoustrack", null);
+            } catch (e) {}
+        };
+    }, [resume, pause, nextVerse, previousVerse]);
+
+    // Sync playback state with Media Session
+    useEffect(() => {
+        if (!("mediaSession" in navigator)) return;
+        try {
+            navigator.mediaSession.playbackState = state.isPlaying ? "playing" : "paused";
+        } catch (e) {}
+    }, [state.isPlaying]);
+
+    // Update Media Session Metadata
+    useEffect(() => {
+        if (!("mediaSession" in navigator) || !state.surahId || !state.currentVerse) return;
+
+        const currentReciter = RECITERS.find(r => r.id === currentReciterId) || RECITERS[0];
+        const surahData = surahs.find(s => s.id === state.surahId);
+        const surahName = surahData ? surahData.name : "";
+        const localizedSurahName = translateSurahName(state.surahId, surahName);
+
+        try {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: locale === "ar" 
+                    ? `الآية ${state.currentVerse} - سورة ${surahName}` 
+                    : `Сура ${localizedSurahName} - Аят ${state.currentVerse}`,
+                artist: locale === "ar" ? currentReciter.nameAr : currentReciter.nameRu,
+                album: locale === "ar" ? "القرآن الكريم" : "Священный Коран",
+                artwork: [
+                    { src: "/icon.png", sizes: "512x512", type: "image/png" }
+                ]
+            });
+        } catch (error) {
+            console.error("Failed to set mediaSession metadata:", error);
+        }
+    }, [state.surahId, state.currentVerse, currentReciterId, locale, translateSurahName]);
 
     const currentReciter = RECITERS.find(r => r.id === currentReciterId) || RECITERS[0];
 
