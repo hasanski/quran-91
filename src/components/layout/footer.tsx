@@ -52,7 +52,7 @@ export default function Footer() {
 
                 <div className="mt-10 border-t border-border pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground" dir="ltr">
                     <div>Developed By MirzaTech</div>
-                    <div>Copyright © 2024. All rights reserved.</div>
+                    <div>Copyright © {new Date().getFullYear()}. All rights reserved.</div>
                 </div>
             </div>
         </footer>
