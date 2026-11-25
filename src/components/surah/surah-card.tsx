@@ -19,9 +19,16 @@ export default function SurahCard({ surah }: SurahCardProps) {
                     <span className="text-lg font-bold">{surah.id}</span>
                 </div>
 
-                <span className="rounded-full border border-border bg-muted px-3 py-1 text-xs text-muted-foreground">
-                    {translateSurahType(surah.type)}
-                </span>
+                <div className="flex gap-2">
+                    <span className="rounded-full border border-border bg-muted px-3 py-1 text-xs text-muted-foreground">
+                        {surah.juz.length === 1
+                            ? t("juz", { juz: surah.juz[0] })
+                            : t("juzRange", { min: Math.min(...surah.juz), max: Math.max(...surah.juz) })}
+                    </span>
+                    <span className="rounded-full border border-border bg-muted px-3 py-1 text-xs text-muted-foreground">
+                        {translateSurahType(surah.type)}
+                    </span>
+                </div>
             </div>
 
             <h2 className="mb-2 text-2xl font-bold text-foreground">

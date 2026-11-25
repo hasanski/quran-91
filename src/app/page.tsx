@@ -21,7 +21,7 @@ export default function HomePage() {
 
         <h1 className="mb-6 text-4xl font-bold leading-tight md:text-6xl">
           {t("readHolyQuran")}
-          <span className="block bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent">
+          <span className="block bg-gradient-to-r from-primary to-gold bg-clip-text text-transparent">
             {t("modernExperience")}
           </span>
         </h1>

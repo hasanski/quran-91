@@ -2,7 +2,9 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = "light" | "dark";
+export type Theme = "light" | "dark" | "sepia";
+
+const THEMES: Theme[] = ["light", "dark", "sepia"];
 
 interface ThemeContextType {
   theme: Theme;
@@ -13,6 +15,16 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+function applyThemeClass(theme: Theme) {
+  const root = document.documentElement;
+  root.classList.remove("dark", "sepia");
+  if (theme !== "light") root.classList.add(theme);
+}
+
+function isTheme(value: string | null): value is Theme {
+  return value !== null && (THEMES as string[]).includes(value);
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
@@ -20,24 +32,34 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMounted(true);
 
-    const savedTheme = localStorage.getItem("theme") as Theme | null;
+    let saved: string | null = null;
+    try {
+      saved = localStorage.getItem("theme");
+    } catch {}
     const systemPrefersDark = window.matchMedia(
       "(prefers-color-scheme: dark)"
     ).matches;
 
-    const initialTheme = savedTheme || (systemPrefersDark ? "dark" : "light");
+    const initialTheme: Theme = isTheme(saved)
+      ? saved
+      : systemPrefersDark
+      ? "dark"
+      : "light";
     setThemeState(initialTheme);
-    document.documentElement.classList.toggle("dark", initialTheme === "dark");
+    applyThemeClass(initialTheme);
   }, []);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem("theme", newTheme);
-    document.documentElement.classList.toggle("dark", newTheme === "dark");
+    try {
+      localStorage.setItem("theme", newTheme);
+    } catch {}
+    applyThemeClass(newTheme);
   };
 
+  // Cycles light → dark → sepia → light
   const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
+    setTheme(THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length]);
   };
 
   return (

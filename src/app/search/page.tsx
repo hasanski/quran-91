@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { surahs } from "@/data/surahs";
 import SurahCard from "@/components/surah/surah-card";
 import { useLanguage } from "@/context/language-context";
+import { getJuzFromQuery } from "@/utils/search-utils";
 
 export default function SearchPage() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -14,6 +15,11 @@ export default function SearchPage() {
 
         if (!term) {
             return surahs;
+        }
+
+        const queryJuz = getJuzFromQuery(term);
+        if (queryJuz !== null) {
+            return surahs.filter((surah) => surah.juz.includes(queryJuz));
         }
 
         return surahs.filter((surah) => {

@@ -11,7 +11,7 @@ export default function Footer() {
             <div className="mx-auto max-w-7xl px-6 py-12">
                 <div className="grid gap-10 md:grid-cols-3">
                     <div>
-                        <h3 className="mb-4 text-2xl font-extrabold bg-gradient-to-r from-emerald-500 to-green-500 bg-clip-text text-transparent">
+                        <h3 className="mb-4 text-2xl font-extrabold bg-gradient-to-r from-primary to-gold bg-clip-text text-transparent">
                             القرآن الكريم
                         </h3>
                         <p className="text-muted-foreground leading-8">

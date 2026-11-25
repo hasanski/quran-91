@@ -283,22 +283,22 @@ export default function SurahDetailsPage() {
                 <AudioPlayer />
 
                 {isMushafMode ? (
-                    <div className="relative rounded-[32px] border-4 border-amber-600/30 bg-[#FAF6EE] dark:bg-[#151D2A] p-8 md:p-12 shadow-inner text-justify transition-all duration-300">
+                    <div className="relative rounded-[32px] border-4 border-gold/30 bg-mushaf p-8 md:p-12 shadow-inner text-justify transition-all duration-300">
                         {/* Decorative corner borders */}
-                        <div className="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-amber-600/40 rounded-tl-md" />
-                        <div className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-amber-600/40 rounded-tr-md" />
-                        <div className="absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-amber-600/40 rounded-bl-md" />
-                        <div className="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-amber-600/40 rounded-br-md" />
+                        <div className="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-gold/40 rounded-tl-md" />
+                        <div className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-gold/40 rounded-tr-md" />
+                        <div className="absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-gold/40 rounded-bl-md" />
+                        <div className="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-gold/40 rounded-br-md" />
 
                         {/* Bismillah Calligraphy (except for Surah 9 (Al-Tawbah) and Surah 1 (Al-Fatihah, which already contains Bismillah in verse 1)) */}
                         {surah.id !== 9 && surah.id !== 1 && (
-                            <div className="quran-text mb-10 text-center font-serif text-3xl md:text-4xl text-amber-900/95 dark:text-amber-500/95 border-b border-amber-600/10 pb-6 select-none">
+                            <div className="quran-text mb-10 text-center font-serif text-3xl md:text-4xl text-mushaf-heading border-b border-gold/15 pb-6 select-none">
                                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
                             </div>
                         )}
 
                         {/* Continuous verses */}
-                        <div className="quran-text text-right tracking-wide leading-[2.6] text-amber-950 dark:text-amber-100/90" dir="rtl">
+                        <div className="quran-text text-right tracking-wide leading-[2.6] text-mushaf-ink" dir="rtl">
                             {surah.verses.map((verse, index) => {
                                 const verseNumber = index + 1;
                                 const isPlaying = audioState.currentVerse === verseNumber && audioState.surahId === surah.id && audioState.isPlaying;
@@ -322,10 +322,10 @@ export default function SurahDetailsPage() {
                                         {verse}
                                         {/* Custom Ayah Separator SVG */}
                                         <span className="inline-flex relative mx-2 text-primary font-bold text-xs align-middle select-none w-8 h-8 items-center justify-center">
-                                            <svg className="w-8 h-8 text-amber-600/40 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth="1.5">
+                                            <svg className="w-8 h-8 text-gold/60 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth="1.5">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                                             </svg>
-                                            <span className="absolute inset-0 flex items-center justify-center text-[10px] text-amber-900 dark:text-amber-100 font-bold">
+                                            <span className="absolute inset-0 flex items-center justify-center text-[10px] text-mushaf-ink font-bold">
                                                 {verseNumber}
                                             </span>
                                         </span>
@@ -335,9 +335,9 @@ export default function SurahDetailsPage() {
                         </div>
 
                         {/* Floating translation footer for clean UX */}
-                        <div className="mt-8 border-t border-amber-600/10 pt-6">
-                            <div className="rounded-2xl bg-amber-600/5 dark:bg-amber-600/10 p-4 border border-amber-600/10">
-                                <p className="text-xs font-semibold text-amber-700 dark:text-amber-500 mb-1">
+                        <div className="mt-8 border-t border-gold/15 pt-6">
+                            <div className="rounded-2xl bg-gold/5 p-4 border border-gold/15">
+                                <p className="text-xs font-semibold text-mushaf-heading mb-1">
                                     {t("hoverToSeeTranslation")}
                                 </p>
                                 <p className="text-sm md:text-base text-muted-foreground italic leading-relaxed min-h-[3rem]">

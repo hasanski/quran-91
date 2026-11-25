@@ -15,7 +15,7 @@ export default function ResumeReading() {
 
   return (
     <section className="mx-auto max-w-7xl px-6 pb-8">
-      <div className="overflow-hidden rounded-[32px] border border-border bg-gradient-to-br from-primary/10 to-emerald-500/10 p-6 shadow-sm backdrop-blur-sm md:p-8">
+      <div className="overflow-hidden rounded-[32px] border border-border bg-gradient-to-br from-primary/10 to-gold/10 p-6 shadow-sm backdrop-blur-sm md:p-8">
         <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div className="flex items-start gap-4">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary text-2xl">

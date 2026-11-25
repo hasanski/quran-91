@@ -1,44 +1,82 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Light: deep emerald + gold ── */
 :root {
-  --background: #F8FAFC;
-  --foreground: #0F172A;
+  --background: #F7F8F6;
+  --foreground: #0F1A17;
   --card: #FFFFFF;
-  --card-foreground: #0F172A;
-  --border: #E2E8F0;
-  --input: #F1F5F9;
-  --primary: #16A34A;
+  --card-foreground: #0F1A17;
+  --border: #E3E8E4;
+  --input: #F0F3F1;
+  --primary: #047857;
   --primary-foreground: #FFFFFF;
-  --secondary: #F1F5F9;
-  --secondary-foreground: #0F172A;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-  --accent: #F0FDF4;
-  --accent-foreground: #166534;
-  --destructive: #EF4444;
+  --secondary: #EEF3F0;
+  --secondary-foreground: #0F1A17;
+  --muted: #EEF3F0;
+  --muted-foreground: #5B6B65;
+  --accent: #ECFDF5;
+  --accent-foreground: #065F46;
+  --destructive: #DC2626;
   --destructive-foreground: #FEF2F2;
-  --ring: #16A34A;
+  --ring: #047857;
+  --gold: #B7862C;
+  --mushaf: #FAF6EE;
+  --mushaf-ink: #3B2A12;
+  --mushaf-heading: #78501A;
   --radius: 1rem;
 }
 
+/* ── Dark: warm green-black, easier for long reading ── */
 .dark {
-  --background: #0B1220;
-  --foreground: #E2E8F0;
-  --card: #1E293B;
-  --card-foreground: #E2E8F0;
-  --border: #1E293B;
-  --input: #0F172A;
-  --primary: #22C55E;
-  --primary-foreground: #020817;
-  --secondary: #1E293B;
-  --secondary-foreground: #E2E8F0;
-  --muted: #1E293B;
-  --muted-foreground: #94A3B8;
-  --accent: #064E3B;
-  --accent-foreground: #86EFAC;
+  --background: #0E1512;
+  --foreground: #E3EAE6;
+  --card: #16201C;
+  --card-foreground: #E3EAE6;
+  --border: #26342E;
+  --input: #121A17;
+  --primary: #34D399;
+  --primary-foreground: #052E22;
+  --secondary: #1B2722;
+  --secondary-foreground: #E3EAE6;
+  --muted: #1B2722;
+  --muted-foreground: #93A59D;
+  --accent: #0B3B2E;
+  --accent-foreground: #A7F3D0;
   --destructive: #F87171;
-  --destructive-foreground: #7F1D1D;
-  --ring: #22C55E;
+  --destructive-foreground: #450A0A;
+  --ring: #34D399;
+  --gold: #D4A64A;
+  --mushaf: #131C18;
+  --mushaf-ink: #EDE3CF;
+  --mushaf-heading: #D4A64A;
+  color-scheme: dark;
+}
+
+/* ── Sepia: paper tone for long reading sessions ── */
+.sepia {
+  --background: #F4ECD8;
+  --foreground: #3B2F1E;
+  --card: #FBF5E6;
+  --card-foreground: #3B2F1E;
+  --border: #E2D5B8;
+  --input: #EFE5CD;
+  --primary: #0F6B4F;
+  --primary-foreground: #FFF8E7;
+  --secondary: #EDE2C8;
+  --secondary-foreground: #3B2F1E;
+  --muted: #EDE2C8;
+  --muted-foreground: #7A6A52;
+  --accent: #E6EFDC;
+  --accent-foreground: #0F5A41;
+  --destructive: #B91C1C;
+  --destructive-foreground: #FEF2F2;
+  --ring: #0F6B4F;
+  --gold: #A0741F;
+  --mushaf: #F8F0DC;
+  --mushaf-ink: #3B2A12;
+  --mushaf-heading: #7A5216;
 }
 
 @theme inline {
@@ -59,9 +97,12 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-ring: var(--ring);
+  --color-gold: var(--gold);
+  --color-mushaf: var(--mushaf);
+  --color-mushaf-ink: var(--mushaf-ink);
+  --color-mushaf-heading: var(--mushaf-heading);
   --radius: var(--radius);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
 }
 
 * {
@@ -71,7 +112,23 @@
 body {
   @apply bg-background text-foreground;
   font-feature-settings: "rlig" 1, "calt" 1;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--primary) 25%, transparent);
+  color: var(--foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .quran-text {
