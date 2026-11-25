@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import localFont from "next/font/local";
+import { SITE_URL } from "@/lib/site";
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
 
 const amiriQuran = localFont({
@@ -27,8 +28,14 @@ import { AudioProvider } from "@/context/audio-context";
 import { LanguageProvider } from "@/context/language-context";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "القرآن الكريم",
   description: "تجربة حديثة لقراءة القرآن الكريم",
+  openGraph: {
+    siteName: "القرآن الكريم",
+    locale: "ar_AR",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
