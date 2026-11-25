@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useAudio } from "@/context/audio-context";
 import { useLanguage } from "@/context/language-context";
-import { Volume2, Share2 } from "lucide-react";
+import { Volume2, Share2, BookOpenText } from "lucide-react";
 import ShareModal from "@/components/surah/share-modal";
+import TafsirPanel from "@/components/surah/tafsir-panel";
 
 type VerseCardProps = {
     id?: string;
@@ -27,6 +28,7 @@ export default function VerseCard({
 }: VerseCardProps) {
     const [copied, setCopied] = useState(false);
     const [isShareOpen, setIsShareOpen] = useState(false);
+    const [isTafsirOpen, setIsTafsirOpen] = useState(false);
     const { state, playVerse } = useAudio();
     const { t, locale } = useLanguage();
     const verseRef = useRef<HTMLElement>(null);
@@ -91,6 +93,21 @@ export default function VerseCard({
 
                     {surahId && (
                         <button
+                            onClick={() => setIsTafsirOpen((open) => !open)}
+                            aria-expanded={isTafsirOpen}
+                            className={`rounded-xl border px-3 py-1 text-sm transition cursor-pointer ${
+                                isTafsirOpen
+                                    ? "border-gold/40 bg-gold/15 text-gold"
+                                    : "border-border bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                            }`}
+                            title={t("tafsir")}
+                        >
+                            <BookOpenText size={16} />
+                        </button>
+                    )}
+
+                    {surahId && (
+                        <button
                             onClick={() => setIsShareOpen(true)}
                             className="rounded-xl border border-border bg-muted px-3 py-1 text-sm text-muted-foreground transition hover:bg-primary/10 hover:text-primary cursor-pointer"
                             title={t("share")}
@@ -114,6 +131,10 @@ export default function VerseCard({
                         {verseTranslation}
                     </p>
                 </div>
+            )}
+
+            {surahId && isTafsirOpen && (
+                <TafsirPanel surahId={surahId} verseNumber={verseNumber} />
             )}
 
             {surahId && (

@@ -1,13 +1,13 @@
 "use client";
 
-import { useAudio } from "@/context/audio-context";
+import { useAudio, REPEAT_OPTIONS } from "@/context/audio-context";
 import { useLanguage } from "@/context/language-context";
 import ReciterSelector from "@/components/audio/reciter-selector";
-import { Play, Pause, SkipForward, SkipBack } from "lucide-react";
+import { Play, Pause, SkipForward, SkipBack, Repeat } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 export default function AudioPlayer() {
-    const { state, pause, resume, nextVerse, previousVerse, seek } = useAudio();
+    const { state, pause, resume, nextVerse, previousVerse, seek, repeatCount, setRepeatCount } = useAudio();
     const { t } = useLanguage();
     const sliderRef = useRef<HTMLInputElement>(null);
 
@@ -42,11 +42,42 @@ export default function AudioPlayer() {
                     </h3>
                     <p className="text-sm text-muted-foreground">
                         {t("verseNumberLabel", { num: state.currentVerse })}
+                        {repeatCount !== 1 && (
+                            <span className="ms-2 rounded-full bg-gold/15 px-2 py-0.5 text-xs font-medium text-gold">
+                                {t("repeatProgress", {
+                                    current: state.repeatPlayed,
+                                    total: repeatCount === 0 ? "∞" : repeatCount,
+                                })}
+                            </span>
+                        )}
                     </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
                     <ReciterSelector />
+
+                    <label
+                        className={`flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition ${
+                            repeatCount !== 1
+                                ? "border-primary bg-primary/10 text-primary"
+                                : "border-border bg-background text-muted-foreground"
+                        }`}
+                        title={t("repeat")}
+                    >
+                        <Repeat size={16} aria-hidden />
+                        <span className="sr-only">{t("repeat")}</span>
+                        <select
+                            value={repeatCount}
+                            onChange={(e) => setRepeatCount(Number(e.target.value))}
+                            className="cursor-pointer bg-transparent outline-none"
+                        >
+                            {REPEAT_OPTIONS.map((n) => (
+                                <option key={n} value={n} className="bg-card text-foreground">
+                                    {n === 1 ? t("repeatOff") : n === 0 ? t("repeatInfinite") : t("repeatTimes", { count: n })}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
 
                     <div className="flex items-center gap-2">
                         <button

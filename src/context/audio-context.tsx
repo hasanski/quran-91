@@ -51,7 +51,12 @@ type AudioState = {
     progress: number;
     duration: number;
     maxVerses: number;
+    /** 1-based index of the current play within the repeat cycle */
+    repeatPlayed: number;
 };
+
+/** How many times each verse is played. 0 = repeat forever. */
+export const REPEAT_OPTIONS = [1, 2, 3, 5, 7, 10, 0] as const;
 
 type AudioContextType = {
     state: AudioState;
@@ -65,6 +70,8 @@ type AudioContextType = {
     reciters: Reciter[];
     currentReciter: Reciter;
     setReciter: (reciterId: string) => void;
+    repeatCount: number;
+    setRepeatCount: (count: number) => void;
 };
 
 const AudioContext = createContext<AudioContextType | null>(null);
@@ -89,6 +96,17 @@ async function requestWakeLock(): Promise<WakeLockSentinel | null> {
         console.warn("Wake Lock request failed:", err);
     }
     return null;
+}
+
+// Saved repeat preference. Safe during SSR: the player only renders after playback starts.
+function readSavedRepeatCount(): number {
+    if (typeof window === "undefined") return 1;
+    try {
+        const raw = localStorage.getItem("repeatCount");
+        const saved = Number(raw);
+        if (raw !== null && (REPEAT_OPTIONS as readonly number[]).includes(saved)) return saved;
+    } catch {}
+    return 1;
 }
 
 async function releaseWakeLock(sentinel: WakeLockSentinel | null) {
@@ -118,7 +136,25 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         progress: 0,
         duration: 0,
         maxVerses: 0,
+        repeatPlayed: 1,
     });
+
+    // Repeat (for memorisation): refs avoid stale closures inside the "ended" handler
+    const [repeatCount, setRepeatCountState] = useState<number>(readSavedRepeatCount);
+    const repeatCountRef = useRef(repeatCount);
+    const repeatPlayedRef = useRef(1);
+
+    const resetRepeatCycle = useCallback(() => {
+        repeatPlayedRef.current = 1;
+    }, []);
+
+    const setRepeatCount = useCallback((count: number) => {
+        repeatCountRef.current = count;
+        setRepeatCountState(count);
+        try {
+            localStorage.setItem("repeatCount", String(count));
+        } catch {}
+    }, []);
 
     // Helper to get whichever audio element is currently active
     const getActiveAudio = useCallback((): HTMLAudioElement | null => {
@@ -215,12 +251,14 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
         activeAudio.src = url;
         activeAudio.load();
+        resetRepeatCycle();
 
         try {
             await activeAudio.play();
             const newMaxVerses = maxVerses || state.maxVerses;
             setState((prev) => ({
                 ...prev,
+                repeatPlayed: 1,
                 currentVerse: verseNumber,
                 isPlaying: true,
                 surahId,
@@ -232,13 +270,14 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             console.error("Playback failed:", error);
             alert(t("playbackError"));
         }
-    }, [state.surahId, state.maxVerses, getActiveAudio, getVerseAudioUrl, currentReciterId, t, preloadNextVerse]);
+    }, [state.surahId, state.maxVerses, getActiveAudio, getVerseAudioUrl, currentReciterId, t, preloadNextVerse, resetRepeatCycle]);
 
     // Play next verse using the pre-loaded inactive audio element (instant swap, no gap)
     const playNextVerseFromBuffer = useCallback(async (surahId: number, nextVerseNum: number, maxVerses: number) => {
         const inactiveAudio = getInactiveAudio();
         if (!inactiveAudio) return;
 
+        resetRepeatCycle();
         // The inactive audio should already have the next verse preloaded
         try {
             await inactiveAudio.play();
@@ -247,6 +286,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             setState((prev) => ({
                 ...prev,
                 currentVerse: nextVerseNum,
+                repeatPlayed: 1,
                 isPlaying: true,
                 surahId,
                 maxVerses,
@@ -266,6 +306,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                     setState((prev) => ({
                         ...prev,
                         currentVerse: nextVerseNum,
+                        repeatPlayed: 1,
                         isPlaying: true,
                         surahId,
                         maxVerses,
@@ -276,7 +317,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                 }
             }
         }
-    }, [getInactiveAudio, getActiveAudio, swapActiveAudio, getVerseAudioUrl, currentReciterId, preloadNextVerse]);
+    }, [getInactiveAudio, getActiveAudio, swapActiveAudio, getVerseAudioUrl, currentReciterId, preloadNextVerse, resetRepeatCycle]);
 
     const playSurah = useCallback(async (surahId: number, startVerse = 1, maxVerses = 1000) => {
         const activeAudio = getActiveAudio();
@@ -287,11 +328,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
         activeAudio.src = url;
         activeAudio.load();
+        resetRepeatCycle();
 
         try {
             await activeAudio.play();
             setState((prev) => ({
                 ...prev,
+                repeatPlayed: 1,
                 surahId,
                 currentVerse: startVerse,
                 isPlaying: true,
@@ -304,7 +347,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             console.error("Playback failed:", error);
             alert(t("playbackError"));
         }
-    }, [getActiveAudio, getVerseAudioUrl, currentReciterId, t, preloadNextVerse]);
+    }, [getActiveAudio, getVerseAudioUrl, currentReciterId, t, preloadNextVerse, resetRepeatCycle]);
 
     const pause = useCallback(() => {
         const activeAudio = getActiveAudio();
@@ -388,6 +431,17 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                 // Only handle ended if this is the active audio
                 const activeAudio = getActiveAudio();
                 if (audio !== activeAudio) return;
+
+                const total = repeatCountRef.current;
+                if (total === 0 || repeatPlayedRef.current < total) {
+                    // Replay the same verse (0 = forever)
+                    repeatPlayedRef.current += 1;
+                    const played = repeatPlayedRef.current;
+                    setState((prev) => ({ ...prev, repeatPlayed: played }));
+                    audio.currentTime = 0;
+                    audio.play().catch((err) => console.error("Repeat playback failed:", err));
+                    return;
+                }
                 nextVerse();
             };
 
@@ -545,6 +599,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         reciters: RECITERS,
         currentReciter,
         setReciter,
+        repeatCount,
+        setRepeatCount,
     };
 
     return (
