@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { toPng } from "html-to-image";
-import { Download, Share2, X, Check } from "lucide-react";
+import { Download, Share2, X } from "lucide-react";
 import { useLanguage } from "@/context/language-context";
 
 type ThemeId = "emerald" | "sand" | "midnight" | "minimalist";
@@ -74,7 +74,7 @@ export default function ShareModal({
     surahId,
 }: ShareModalProps) {
     const cardRef = useRef<HTMLDivElement>(null);
-    const { t, translateSurahName, locale } = useLanguage();
+    const { translateSurahName, locale } = useLanguage();
     const [selectedThemeId, setSelectedThemeId] = useState<ThemeId>("emerald");
     const [showTranslation, setShowTranslation] = useState(true);
     const [isGenerating, setIsGenerating] = useState(false);

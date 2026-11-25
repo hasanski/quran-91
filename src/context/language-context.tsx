@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, ReactNode } from "react";
+import { useHydrated, useStoredValue } from "@/hooks/use-stored-value";
 
 export type Locale = "ar" | "ru";
 
@@ -317,25 +318,17 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("ar");
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
+  const [savedLocale, setSavedLocale] = useStoredValue("locale");
+  const locale: Locale = savedLocale === "ru" ? "ru" : "ar";
 
   useEffect(() => {
-    setMounted(true);
-    const savedLocale = localStorage.getItem("locale") as Locale | null;
-    const initialLocale = savedLocale || "ar";
-    setLocaleState(initialLocale);
-    
-    document.documentElement.lang = initialLocale;
-    document.documentElement.dir = initialLocale === "ar" ? "rtl" : "ltr";
-  }, []);
+    if (!mounted) return;
+    document.documentElement.lang = locale;
+    document.documentElement.dir = locale === "ar" ? "rtl" : "ltr";
+  }, [locale, mounted]);
 
-  const setLocale = (newLocale: Locale) => {
-    setLocaleState(newLocale);
-    localStorage.setItem("locale", newLocale);
-    document.documentElement.lang = newLocale;
-    document.documentElement.dir = newLocale === "ar" ? "rtl" : "ltr";
-  };
+  const setLocale = (newLocale: Locale) => setSavedLocale(newLocale);
 
   const t = (key: TranslationKey, replacements?: Record<string, string | number>) => {
     let text = translations[locale]?.[key] || translations["ar"][key] || "";

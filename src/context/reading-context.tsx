@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useMemo } from "react";
+import { useStoredValue } from "@/hooks/use-stored-value";
 
 interface ReadingPosition {
   surahId: number;
@@ -18,39 +19,27 @@ interface ReadingContextType {
 const ReadingContext = createContext<ReadingContextType | undefined>(undefined);
 
 export function ReadingProvider({ children }: { children: React.ReactNode }) {
-  const [lastPosition, setLastPosition] = useState<ReadingPosition | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const [raw, setRaw] = useStoredValue("readingPosition");
 
-  useEffect(() => {
-    setMounted(true);
-
-    const savedPosition = localStorage.getItem("readingPosition");
-    if (savedPosition) {
-      try {
-        const parsed = JSON.parse(savedPosition);
-        setLastPosition(parsed);
-      } catch (error) {
-        console.error("Failed to parse reading position:", error);
-      }
+  const lastPosition = useMemo<ReadingPosition | null>(() => {
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as ReadingPosition;
+    } catch (error) {
+      console.error("Failed to parse reading position:", error);
+      return null;
     }
-  }, []);
+  }, [raw]);
 
-  const savePosition = (surahId: number, surahName: string, verseNumber: number) => {
-    const position: ReadingPosition = {
-      surahId,
-      surahName,
-      verseNumber,
-      timestamp: Date.now(),
-    };
+  const savePosition = useCallback(
+    (surahId: number, surahName: string, verseNumber: number) => {
+      const position: ReadingPosition = { surahId, surahName, verseNumber, timestamp: Date.now() };
+      setRaw(JSON.stringify(position));
+    },
+    [setRaw]
+  );
 
-    setLastPosition(position);
-    localStorage.setItem("readingPosition", JSON.stringify(position));
-  };
-
-  const clearPosition = () => {
-    setLastPosition(null);
-    localStorage.removeItem("readingPosition");
-  };
+  const clearPosition = useCallback(() => setRaw(null), [setRaw]);
 
   return (
     <ReadingContext.Provider value={{ lastPosition, savePosition, clearPosition }}>

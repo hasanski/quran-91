@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useRef, useEffect, useCallback } from "react";
 import { useLanguage } from "@/context/language-context";
 import { surahs } from "@/data/surahs";
+import { useStoredValue } from "@/hooks/use-stored-value";
 
 export type Reciter = {
     id: string;
@@ -98,17 +99,6 @@ async function requestWakeLock(): Promise<WakeLockSentinel | null> {
     return null;
 }
 
-// Saved repeat preference. Safe during SSR: the player only renders after playback starts.
-function readSavedRepeatCount(): number {
-    if (typeof window === "undefined") return 1;
-    try {
-        const raw = localStorage.getItem("repeatCount");
-        const saved = Number(raw);
-        if (raw !== null && (REPEAT_OPTIONS as readonly number[]).includes(saved)) return saved;
-    } catch {}
-    return 1;
-}
-
 async function releaseWakeLock(sentinel: WakeLockSentinel | null) {
     if (sentinel) {
         try {
@@ -128,7 +118,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     // Track which audio element is currently active (for double-buffering swap)
     const activeAudioRef = useRef<"primary" | "next">("primary");
     const { t, locale, translateSurahName } = useLanguage();
-    const [currentReciterId, setCurrentReciterId] = useState<string>("alafasy");
+    const [savedReciterId, setSavedReciterId] = useStoredValue("currentReciterId");
+    const currentReciterId =
+        savedReciterId && RECITERS.some(r => r.id === savedReciterId) ? savedReciterId : RECITERS[0].id;
     const [state, setState] = useState<AudioState>({
         isPlaying: false,
         currentVerse: null,
@@ -140,8 +132,15 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     });
 
     // Repeat (for memorisation): refs avoid stale closures inside the "ended" handler
-    const [repeatCount, setRepeatCountState] = useState<number>(readSavedRepeatCount);
+    const [savedRepeat, setSavedRepeat] = useStoredValue("repeatCount");
+    const repeatCount =
+        savedRepeat !== null && (REPEAT_OPTIONS as readonly number[]).includes(Number(savedRepeat))
+            ? Number(savedRepeat)
+            : 1;
     const repeatCountRef = useRef(repeatCount);
+    useEffect(() => {
+        repeatCountRef.current = repeatCount;
+    }, [repeatCount]);
     const repeatPlayedRef = useRef(1);
 
     const resetRepeatCycle = useCallback(() => {
@@ -150,11 +149,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     const setRepeatCount = useCallback((count: number) => {
         repeatCountRef.current = count;
-        setRepeatCountState(count);
-        try {
-            localStorage.setItem("repeatCount", String(count));
-        } catch {}
-    }, []);
+        setSavedRepeat(String(count));
+    }, [setSavedRepeat]);
 
     // Helper to get whichever audio element is currently active
     const getActiveAudio = useCallback((): HTMLAudioElement | null => {
@@ -169,13 +165,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     const swapActiveAudio = useCallback(() => {
         activeAudioRef.current = activeAudioRef.current === "primary" ? "next" : "primary";
-    }, []);
-
-    useEffect(() => {
-        const savedReciter = localStorage.getItem("currentReciterId");
-        if (savedReciter && RECITERS.some(r => r.id === savedReciter)) {
-            setCurrentReciterId(savedReciter);
-        }
     }, []);
 
     // Manage Wake Lock based on playback state
@@ -213,10 +202,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     const setReciter = useCallback((reciterId: string) => {
         if (RECITERS.some(r => r.id === reciterId)) {
-            setCurrentReciterId(reciterId);
-            localStorage.setItem("currentReciterId", reciterId);
+            setSavedReciterId(reciterId);
         }
-    }, []);
+    }, [setSavedReciterId]);
 
     const getVerseAudioUrl = useCallback((surahId: number, verseNumber: number, reciterId: string) => {
         const reciter = RECITERS.find(r => r.id === reciterId) || RECITERS[0];
@@ -533,7 +521,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                 navigator.mediaSession.setActionHandler("previoustrack", null);
                 navigator.mediaSession.setActionHandler("seekbackward", null);
                 navigator.mediaSession.setActionHandler("seekforward", null);
-            } catch (e) {}
+            } catch {}
         };
     }, [resume, pause, nextVerse, previousVerse, getActiveAudio]);
 
@@ -542,7 +530,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         if (!("mediaSession" in navigator)) return;
         try {
             navigator.mediaSession.playbackState = state.isPlaying ? "playing" : "paused";
-        } catch (e) {}
+        } catch {}
     }, [state.isPlaying]);
 
     // Update Media Session Metadata with position state for lock screen controls
@@ -582,7 +570,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                     position: Math.min(state.progress, state.duration),
                 });
             }
-        } catch (e) {}
+        } catch {}
     }, [state.progress, state.duration, getActiveAudio]);
 
     const currentReciter = RECITERS.find(r => r.id === currentReciterId) || RECITERS[0];

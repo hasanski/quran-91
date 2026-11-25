@@ -3,7 +3,7 @@
 import { useAudio } from "@/context/audio-context";
 import { useLanguage } from "@/context/language-context";
 import ReciterSelector from "@/components/audio/reciter-selector";
-import { Play, Volume2, VolumeX, BookOpen } from "lucide-react";
+import { Play, VolumeX, BookOpen } from "lucide-react";
 
 type ReadingToolbarProps = {
     onIncreaseFont: () => void;

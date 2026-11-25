@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useSyncExternalStore } from "react";
+import { useHydrated, useStoredValue } from "@/hooks/use-stored-value";
 
 export type Theme = "light" | "dark" | "sepia";
 
@@ -25,42 +26,37 @@ function isTheme(value: string | null): value is Theme {
   return value !== null && (THEMES as string[]).includes(value);
 }
 
+const DARK_QUERY = "(prefers-color-scheme: dark)";
+
+function subscribeSystemTheme(onChange: () => void) {
+  const mq = window.matchMedia(DARK_QUERY);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
+  const [saved, setSaved] = useStoredValue("theme");
+  const systemPrefersDark = useSyncExternalStore(
+    subscribeSystemTheme,
+    () => window.matchMedia(DARK_QUERY).matches,
+    () => false
+  );
 
+  const theme: Theme = isTheme(saved) ? saved : systemPrefersDark ? "dark" : "light";
+
+  // The inline script in layout.tsx sets the class before first paint;
+  // skip the hydration pass so it isn't briefly reset to "light".
   useEffect(() => {
-    setMounted(true);
+    if (mounted) applyThemeClass(theme);
+  }, [theme, mounted]);
 
-    let saved: string | null = null;
-    try {
-      saved = localStorage.getItem("theme");
-    } catch {}
-    const systemPrefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-
-    const initialTheme: Theme = isTheme(saved)
-      ? saved
-      : systemPrefersDark
-      ? "dark"
-      : "light";
-    setThemeState(initialTheme);
-    applyThemeClass(initialTheme);
-  }, []);
-
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-    try {
-      localStorage.setItem("theme", newTheme);
-    } catch {}
-    applyThemeClass(newTheme);
-  };
+  const setTheme = useCallback((newTheme: Theme) => setSaved(newTheme), [setSaved]);
 
   // Cycles light → dark → sepia → light
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     setTheme(THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length]);
-  };
+  }, [theme, setTheme]);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme, mounted }}>

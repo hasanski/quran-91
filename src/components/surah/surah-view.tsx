@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useStoredValue } from "@/hooks/use-stored-value";
 import VerseCard from "@/components/surah/verse-card";
 import ReadingToolbar from "@/components/surah/reading-toolbar";
 import AudioPlayer from "@/components/audio/audio-player";
@@ -17,22 +18,12 @@ export default function SurahView({ surah }: { surah: SurahDetails }) {
     const { t, translateSurahName, translateSurahType, locale } = useLanguage();
     const { state: audioState, playVerse } = useAudio();
 
-    const [isMushafMode, setIsMushafMode] = useState(false);
+    const [savedMushafMode, setSavedMushafMode] = useStoredValue("isMushafMode");
+    const isMushafMode = savedMushafMode === "true";
     const [hoveredVerse, setHoveredVerse] = useState<number | null>(null);
 
-    useEffect(() => {
-        const saved = localStorage.getItem("isMushafMode");
-        if (saved !== null) {
-            setIsMushafMode(saved === "true");
-        }
-    }, []);
-
     const handleToggleMushafMode = () => {
-        setIsMushafMode((prev) => {
-            const next = !prev;
-            localStorage.setItem("isMushafMode", String(next));
-            return next;
-        });
+        setSavedMushafMode(String(!isMushafMode));
     };
 
     useEffect(() => {

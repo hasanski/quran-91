@@ -63,7 +63,7 @@ export default function ResumeReading() {
   );
 }
 
-function getTimeAgo(timestamp: number, t: any): string {
+function getTimeAgo(timestamp: number, t: ReturnType<typeof useLanguage>["t"]): string {
   const now = Date.now();
   const diffInSeconds = Math.floor((now - timestamp) / 1000);
 
