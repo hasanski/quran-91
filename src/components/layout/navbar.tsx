@@ -10,7 +10,7 @@ export default function Navbar() {
 
     return (
         <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
-            <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+            <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
 
                 <Link href="/" className="text-xl font-extrabold bg-gradient-to-r from-primary to-gold bg-clip-text text-transparent">
                     القرآن الكريم
@@ -39,7 +39,7 @@ export default function Navbar() {
                     <ThemeToggle />
                     <Link
                         href="/surahs"
-                        className="rounded-2xl bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 transition"
+                        className="hidden rounded-2xl bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 transition sm:inline-block"
                     >
                         {t("startReading")}
                     </Link>

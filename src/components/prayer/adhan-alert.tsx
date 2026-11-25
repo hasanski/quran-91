@@ -12,7 +12,7 @@ export default function AdhanAlert() {
   if (!alertPrayer && !isAdhanPlaying) return null;
 
   return (
-    <div className="fixed inset-x-4 bottom-4 z-[60] mx-auto max-w-md" role="status" aria-live="polite">
+    <div className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-[60] mx-auto max-w-md md:bottom-4" role="status" aria-live="polite">
       <div className="flex items-center gap-3 rounded-3xl border border-gold/30 bg-card/95 p-4 shadow-xl backdrop-blur-md">
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gold/15 text-gold">
           <BellRing size={22} className={isAdhanPlaying ? "animate-pulse" : ""} />

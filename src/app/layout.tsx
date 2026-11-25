@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import localFont from "next/font/local";
 import { SITE_URL } from "@/lib/site";
@@ -22,12 +22,18 @@ const themeInitScript = `(function(){try{var t=localStorage.getItem("theme");if(
 
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
+import MobileNav from "@/components/layout/mobile-nav";
 import { ThemeProvider } from "@/context/theme-context";
 import { ReadingProvider } from "@/context/reading-context";
 import { AudioProvider } from "@/context/audio-context";
 import { LanguageProvider } from "@/context/language-context";
 import { PrayerProvider } from "@/context/prayer-context";
 import AdhanAlert from "@/components/prayer/adhan-alert";
+
+export const viewport: Viewport = {
+  // Lets the mobile tab bar respect the iPhone home-indicator safe area
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -56,11 +62,13 @@ export default function RootLayout({
             <AudioProvider>
               <PrayerProvider>
                 <ReadingProvider>
-                  <div className="flex min-h-screen flex-col">
+                  {/* pb on mobile keeps content clear of the bottom tab bar */}
+                  <div className="flex min-h-screen flex-col pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">
                     <Navbar />
                     <main className="flex-1">{children}</main>
                     <Footer />
                   </div>
+                  <MobileNav />
                   <AdhanAlert />
                 </ReadingProvider>
               </PrayerProvider>
