@@ -84,15 +84,15 @@ export default function Navbar() {
         </header>
 
             {/* Mobile side drawer (outside header: backdrop-blur would trap position:fixed) */}
-            <div className={`fixed inset-0 z-[70] md:hidden ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
+            <div className={`fixed inset-0 z-[70] overflow-hidden md:hidden ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
                 <div
                     className={`absolute inset-0 bg-black/40 transition-opacity ${open ? "opacity-100" : "opacity-0"}`}
                     onClick={() => setOpen(false)}
                 />
                 <aside
                     id="mobile-drawer"
-                    className={`absolute inset-y-0 start-0 flex h-dvh w-72 max-w-[80vw] flex-col gap-2 border-e border-border bg-background p-4 shadow-2xl transition-transform duration-300 ${
-                        open ? "translate-x-0" : "ltr:-translate-x-full rtl:translate-x-full"
+                    className={`absolute inset-y-0 start-0 flex h-dvh w-72 max-w-[80vw] flex-col gap-2 border-e border-border bg-background p-4 transition-transform duration-300 ${
+                        open ? "translate-x-0 shadow-2xl" : "ltr:-translate-x-full rtl:translate-x-full"
                     }`}
                     style={{ paddingTop: "calc(1rem + env(safe-area-inset-top))" }}
                 >
