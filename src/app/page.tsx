@@ -4,6 +4,7 @@ import Link from "next/link";
 import { surahs } from "@/data/surahs";
 import SurahCard from "@/components/surah/surah-card";
 import ResumeReading from "@/components/reading/resume-reading";
+import NextPrayerCard from "@/components/prayer/next-prayer-card";
 import { useLanguage } from "@/context/language-context";
 
 export default function HomePage() {
@@ -68,6 +69,9 @@ export default function HomePage() {
 
         </div>
       </section>
+
+      {/* 🕌 الصلاة القادمة */}
+      <NextPrayerCard />
 
       {/* 💾 استكمال القراءة */}
       <ResumeReading />

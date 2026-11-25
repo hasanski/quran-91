@@ -25,6 +25,10 @@ export default function Navbar() {
                         {t("surahs")}
                     </Link>
 
+                    <Link href="/prayer-times" className="text-sm text-muted-foreground hover:text-foreground transition">
+                        {t("prayerTimes")}
+                    </Link>
+
                     <Link href="/search" className="text-sm text-muted-foreground hover:text-foreground transition">
                         {t("search")}
                     </Link>

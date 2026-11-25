@@ -26,6 +26,8 @@ import { ThemeProvider } from "@/context/theme-context";
 import { ReadingProvider } from "@/context/reading-context";
 import { AudioProvider } from "@/context/audio-context";
 import { LanguageProvider } from "@/context/language-context";
+import { PrayerProvider } from "@/context/prayer-context";
+import AdhanAlert from "@/components/prayer/adhan-alert";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -52,13 +54,16 @@ export default function RootLayout({
         <ThemeProvider>
           <LanguageProvider>
             <AudioProvider>
-              <ReadingProvider>
-                <div className="flex min-h-screen flex-col">
-                  <Navbar />
-                  <main className="flex-1">{children}</main>
-                  <Footer />
-                </div>
-              </ReadingProvider>
+              <PrayerProvider>
+                <ReadingProvider>
+                  <div className="flex min-h-screen flex-col">
+                    <Navbar />
+                    <main className="flex-1">{children}</main>
+                    <Footer />
+                  </div>
+                  <AdhanAlert />
+                </ReadingProvider>
+              </PrayerProvider>
             </AudioProvider>
           </LanguageProvider>
         </ThemeProvider>
