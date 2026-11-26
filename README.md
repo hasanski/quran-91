@@ -32,20 +32,6 @@ npm run build   # production build; fetches all 114 surahs from Quran.com
 npm run lint
 ```
 
-## Deployment (Windows shared hosting)
-
-The site runs behind IIS on Windows shared hosting, which starts it with `node start.js` through HttpPlatformHandler. The host has no npm and no shell, so the site is built and packaged locally:
-
-```bash
-npm run deploy   # builds, then assembles `deploy/`
-```
-
-Upload the **contents of `deploy/`** (including the `.next` folder) to the site root, after clearing the previous upload and its `web.config`.
-
-- **502 error:** open `logs\node_*.log` in the site root. Its first line is the Node version (Next.js 16 needs 20.9 or newer), followed by the startup error.
-- **Local check:** `deploy/` is self-contained, so `node deploy/start.js` runs it as the host does (`PORT` defaults to 3000).
-- `npm start` still serves the site locally but warns about the standalone output.
-
 ## Project structure
 
 ```
