@@ -32,6 +32,10 @@ npm run build   # production build; fetches all 114 surahs from Quran.com
 npm run lint
 ```
 
+## Deployment
+
+The host builds the site from the `main` branch of the GitHub repository itself, with build command `npm run build` and start command `npm run start`, so nothing is uploaded by hand.
+
 ## Project structure
 
 ```
